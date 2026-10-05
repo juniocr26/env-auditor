@@ -1,10 +1,14 @@
 # ENV Auditor
 
+[English](README.md) | [Português](README.pt-BR.md)
+
+[Architecture Decisions & Trade-offs](docs/en/architecture.md)
+
 A standalone Python CLI for auditing, synchronizing, and cleaning `.env`, `.env.*`, and `.env.example` files across projects in a workspace.
 
 ENV Auditor keeps all environment files within the same project consistent with a shared `.env.example`, detects potentially unused variables, removes stale configuration, and helps reduce the risk of accidentally exposing sensitive values.
 
-The tool is designed to work without external Python dependencies and never prints environment variable values.
+The tool is designed to work without external Python dependencies and its audit reporting does not print environment assignment values. Paths, key names and configuration-error diagnostics are not a general log-redaction boundary.
 
 ## Features
 
@@ -454,7 +458,7 @@ Example:
 
 ```text
 USO_FORTE DB_HOST: docker-compose.yml, config/database.php
-USO_FRACO FEATURE_FLAG_X: config/custom.php
+WEAK_USAGE_ONLY FEATURE_FLAG_X: config/custom.php
 ```
 
 It can also be combined with:
@@ -537,7 +541,7 @@ Weak usage means the exact variable name was found in a searchable runtime or co
 Example:
 
 ```text
-USO_APENAS_FRACO:
+WEAK_USAGE_ONLY:
     - MY_VARIABLE
 ```
 
@@ -552,7 +556,7 @@ If no strong or weak reference is found, the variable is classified as potential
 In audit-only mode:
 
 ```text
-POSSIVELMENTE_SEM_USO:
+POSSIBLY_UNUSED:
     - LEGACY_VARIABLE
 ```
 
@@ -638,25 +642,25 @@ and every real environment file in the same project.
 The current CLI reports structural conditions using labels such as:
 
 ```text
-FALTANDO_NO_EXAMPLE
-EXAMPLE_SEM_CHAVE_NO_AMBIENTE
-DUPLICADAS
-POSSIVEL_SECRET_NO_EXAMPLE
+MISSING_FROM_EXAMPLE
+EXAMPLE_KEY_MISSING_FROM_ENVIRONMENT
+DUPLICATE_KEYS
+POSSIBLE_SECRET_IN_EXAMPLE
 ```
 
-### `FALTANDO_NO_EXAMPLE`
+### `MISSING_FROM_EXAMPLE`
 
 A key exists in at least one real environment file but not in `.env.example`.
 
-### `EXAMPLE_SEM_CHAVE_NO_AMBIENTE`
+### `EXAMPLE_KEY_MISSING_FROM_ENVIRONMENT`
 
 A key exists in `.env.example` but is missing from one or more real environment files.
 
-### `DUPLICADAS`
+### `DUPLICATE_KEYS`
 
 A key appears more than once in the same file.
 
-### `POSSIVEL_SECRET_NO_EXAMPLE`
+### `POSSIBLE_SECRET_IN_EXAMPLE`
 
 A sensitive-looking variable contains a value in `.env.example` that may represent a real credential.
 
@@ -702,6 +706,8 @@ If a sensitive-looking variable contains a value that appears to be real, synchr
 Secret validation is applied to `.env.example`.
 
 Real `.env` / `.env.*` values are not inspected for propagation and are never printed.
+
+A possible-secret finding blocks synchronization, not all mutations: normal-mode unused cleanup can still run. `--strict` sets the final exit code after processing; use `--audit-only --strict` for a read-only check. See [architecture limitations](docs/en/architecture.md).
 
 ## Backups
 

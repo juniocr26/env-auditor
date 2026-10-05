@@ -1,10 +1,14 @@
 # ENV Auditor
 
+[English](README.md) | [Português](README.pt-BR.md)
+
+[Decisões de arquitetura e trade-offs](docs/pt-BR/architecture.md)
+
 Uma CLI Python independente para auditar, sincronizar e limpar arquivos `.env`, `.env.*` e `.env.example` entre projetos em um workspace.
 
 O ENV Auditor mantém todos os arquivos de ambiente de um mesmo projeto consistentes com um `.env.example` compartilhado, detecta variáveis potencialmente não utilizadas, remove configurações obsoletas e ajuda a reduzir o risco de exposição acidental de valores sensíveis.
 
-A ferramenta foi projetada para funcionar sem dependências externas do Python e nunca exibe os valores das variáveis de ambiente.
+A ferramenta usa apenas a biblioteca padrão Python. Seus relatórios não exibem valores de atribuições de ambiente; caminhos, nomes de chaves e diagnósticos de configuração não são uma garantia geral de redaction de logs.
 
 ## Funcionalidades
 
@@ -474,7 +478,7 @@ Exemplo:
 ```text
 USO_FORTE DB_HOST: docker-compose.yml, config/database.php
 
-USO_FRACO FEATURE_FLAG_X: config/custom.php
+WEAK_USAGE_ONLY FEATURE_FLAG_X: config/custom.php
 ```
 
 Também pode ser combinado com:
@@ -557,7 +561,7 @@ Uso fraco significa que o nome exato da variável foi encontrado em um arquivo p
 Exemplo:
 
 ```text
-USO_APENAS_FRACO:
+WEAK_USAGE_ONLY:
 
     - MY_VARIABLE
 ```
@@ -573,7 +577,7 @@ Se nenhuma referência forte ou fraca for encontrada, a variável é classificad
 No modo audit-only:
 
 ```text
-POSSIVELMENTE_SEM_USO:
+POSSIBLY_UNUSED:
 
     - LEGACY_VARIABLE
 ```
@@ -689,25 +693,25 @@ e cada arquivo de ambiente real do mesmo projeto.
 A CLI atual informa condições estruturais utilizando rótulos como:
 
 ```text
-FALTANDO_NO_EXAMPLE
-EXAMPLE_SEM_CHAVE_NO_AMBIENTE
-DUPLICADAS
-POSSIVEL_SECRET_NO_EXAMPLE
+MISSING_FROM_EXAMPLE
+EXAMPLE_KEY_MISSING_FROM_ENVIRONMENT
+DUPLICATE_KEYS
+POSSIBLE_SECRET_IN_EXAMPLE
 ```
 
-### `FALTANDO_NO_EXAMPLE`
+### `MISSING_FROM_EXAMPLE`
 
 Uma chave existe em pelo menos um arquivo de ambiente real, mas não existe no `.env.example`.
 
-### `EXAMPLE_SEM_CHAVE_NO_AMBIENTE`
+### `EXAMPLE_KEY_MISSING_FROM_ENVIRONMENT`
 
 Uma chave existe no `.env.example`, mas está ausente de um ou mais arquivos de ambiente reais.
 
-### `DUPLICADAS`
+### `DUPLICATE_KEYS`
 
 Uma chave aparece mais de uma vez no mesmo arquivo.
 
-### `POSSIVEL_SECRET_NO_EXAMPLE`
+### `POSSIBLE_SECRET_IN_EXAMPLE`
 
 Uma variável com nome potencialmente sensível contém um valor no `.env.example` que pode representar uma credencial real.
 
@@ -753,6 +757,8 @@ Se uma variável com nome potencialmente sensível contiver um valor que pareça
 A validação de secrets é aplicada ao `.env.example`.
 
 Valores reais de `.env` / `.env.*` não são inspecionados para propagação e nunca são exibidos.
+
+Um possível secret bloqueia a sincronização, não todas as mutações: o cleanup normal ainda pode remover chaves sem uso. `--strict` define o exit code após processamento; use `--audit-only --strict` para análise sem escrita. Veja [limitações de arquitetura](docs/pt-BR/architecture.md).
 
 ## Backups
 
