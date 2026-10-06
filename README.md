@@ -1128,3 +1128,5 @@ To inspect the workspace without synchronization or cleanup:
 ```bash
 python3 scripts/audit-envs.py --audit-only
 ```
+
+[Development setup and configuration recovery](docs/en/docker-development-setup.md) (host Python CLI; no Docker services).
