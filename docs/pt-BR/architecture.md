@@ -22,7 +22,7 @@ ENV Auditor é uma ferramenta filesystem local: descobre conjuntos de ambientes,
 
 **Reavaliar quando.** Packaging, extensões independentes, compatibilidade dotenv completa ou tamanho dificultarem manutenção/testes.
 
-**Evidências:** imports, `EnvFile`, `UsageEvidence`, `SyncAction`, `main`, [requisitos](../../README.pt-BR.md).
+**Evidências:** imports, `EnvFile`, `UsageEvidence`, `SyncAction`, `main`, [requisitos](guide.md).
 
 ## Decisão: Um diretório representa um contrato de ambientes
 
@@ -64,7 +64,7 @@ ENV Auditor é uma ferramenta filesystem local: descobre conjuntos de ambientes,
 
 **Reavaliar quando.** Ocorrerem remoções falsas, repositórios crescerem ou semântica precisa for requisito. Adicionar regressões/exclusões antes de ampliar automação.
 
-**Evidências:** `STRONG_USAGE_EXTRACTORS`, `ENV_TOKEN_RE`, `analyze_usage`, `iter_runtime_files`, [limites estáticos](../../README.pt-BR.md).
+**Evidências:** `STRONG_USAGE_EXTRACTORS`, `ENV_TOKEN_RE`, `analyze_usage`, `iter_runtime_files`, [limites estáticos](guide.md).
 
 ## Decisão: Cleanup automático com modos distintos de revisão
 

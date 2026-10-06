@@ -22,7 +22,7 @@ ENV Auditor is a local filesystem tool: discover environment sets, synchronize t
 
 **Revisit when.** Packaging, independent extensions or full dotenv compatibility becomes necessary, or script size prevents maintaining/test-driving boundaries.
 
-**Evidence:** imports, `EnvFile`, `UsageEvidence`, `SyncAction`, `main`, [README requirements](../../README.md#requirements).
+**Evidence:** imports, `EnvFile`, `UsageEvidence`, `SyncAction`, `main`, [README requirements](guide.md#requirements).
 
 ## Decision: One directory is one environment contract
 
@@ -64,7 +64,7 @@ ENV Auditor is a local filesystem tool: discover environment sets, synchronize t
 
 **Revisit when.** False removals occur, repositories become too large, or precise language semantics are required. Add regression cases and explicit exclusions before increasing automatic cleanup.
 
-**Evidence:** `STRONG_USAGE_EXTRACTORS`, `ENV_TOKEN_RE`, `analyze_usage`, `iter_runtime_files`, [static-analysis limitations](../../README.md#important-limitation-of-static-usage-detection).
+**Evidence:** `STRONG_USAGE_EXTRACTORS`, `ENV_TOKEN_RE`, `analyze_usage`, `iter_runtime_files`, [static-analysis limitations](guide.md#important-limitation-of-static-usage-detection).
 
 ## Decision: Automatic cleanup with distinct review modes
 

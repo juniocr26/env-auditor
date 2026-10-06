@@ -21,7 +21,7 @@ There is no dependency installation/recovery command, dependency cache, node_mod
 
 ## Configuration recovery
 
-`.env-audit.json` is optional custom JSON configuration; no tracked template or generation command exists. Missing custom exclusions/allowlists require a backup, or deliberate manual reconfiguration following the README. Dependency installation cannot recover them. `.env-audit-backups/` contains generated backups of environment files. It is produced by normal mutating runs, not by read-only checks, and deleting it destroys that recovery history: recover it from another backup. Do not run the tool merely to manufacture replacement backups.
+`.env-audit.json` is optional custom JSON configuration; no tracked template or generation command exists. Missing custom exclusions/allowlists require a backup, or deliberate manual reconfiguration following the [project guide](guide.md). Dependency installation cannot recover them. `.env-audit-backups/` contains generated backups of environment files. It is produced by normal mutating runs, not by read-only checks, and deleting it destroys that recovery history: recover it from another backup. Do not run the tool merely to manufacture replacement backups.
 
 For a missing tracked script or documentation, first confirm the file is absent, then restore that exact path:
 
