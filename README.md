@@ -44,7 +44,7 @@ Before modifying an existing target, save exact original bytes and only the remo
 <scan-root>/.env-audit-backups/<UTC timestamp plus unique suffix>/<relative directory>/<filename>.removed
 ```
 
-Backup directories use permissions `0700`, files use `0600`, and the backup root has a local `.gitignore` containing `*`. Backup directory names are collision-safe. Backup failure prevents modification of that target; partial backups may remain after a failure. Unchanged and new targets do not create backups. Target writes use a temporary file in the same directory and atomic replacement; temporary files are cleaned after failures. Existing permission bits are preserved, and new targets use `0600`.
+Backup directories use permissions `0700`, files use `0600`, and the backup root has a local `.gitignore` containing `*`. Backup directory names are collision-safe. Backup failure prevents modification of that target; partial backups may remain after a failure. Unchanged and new targets do not create backups. Target writes use a temporary file in the same directory and atomic replacement; temporary-file cleanup is attempted after failures; cleanup can itself fail. Existing permission bits are preserved, and new targets use `0600`.
 
 Reports contain the absolute root, discovered files grouped by directory, selected pairs, added/removed names and counts, created/updated/unchanged/skipped outcomes, backup paths, errors, and final totals. Environment values and exception content from filesystem errors are never printed.
 
@@ -70,3 +70,5 @@ Atomic replacement is per target; there is no transaction across all targets and
 
 [Architecture](docs/en/architecture.md) · [Guide](docs/en/guide.md) · [Setup](docs/en/setup.md) · [Verification](docs/en/verification.md) · [License](LICENSE)
 
+
+Static review clarified filesystem race, crash-durability and unexcluded hidden-storage limits in [architecture](docs/en/architecture.md). Test commands above are documented instructions; this documentation audit did not execute them.

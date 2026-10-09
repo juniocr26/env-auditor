@@ -2,7 +2,7 @@
 
 O contrato da CLI, as regras de sincronização, exclusões, backups, códigos de saída, comandos e limitações estão documentados no [README em português](../../README.pt-BR.md).
 
-Executado em 2026-10-09, a partir de `Portifólio`:
+Execução anteriormente registrada em 2026-10-09, a partir de `Portifólio`:
 
 ```bash
 python3 -B -m unittest discover -s env-auditor/tests -v
@@ -15,3 +15,7 @@ Também foram executadas prévias reais em `env-auditor` com `python3 -B scripts
 
 Os hashes SHA-256, bits de permissão e timestamps de modificação dos arquivos de ambiente descobertos permaneceram idênticos antes e depois das prévias. A existência da raiz de backups também permaneceu igual. Não foi executada sincronização normal no workspace real, nem testes ou serviços das aplicações irmãs, nem instalação de dependências.
 
+
+## Auditoria documental estática — 2026-10-09
+
+Script e 17 métodos de teste inspecionados sem importar ou executar. Arquitetura e material de entrevista alinhados à implementação baseada em exemplos autoritativos. Nenhum arquivo de ambiente ou backup foi lido/alterado; nenhuma prévia ou sincronização foi executada. Resultados anteriores continuam como evidência histórica. Checagens estáticas de links e alterações somente documentais estão na [revisão](../../../tecnical-interview/docs/pt-BR/verification.md).

@@ -2,7 +2,7 @@
 
 The maintained CLI contract, synchronization rules, exclusions, backups, exit statuses, commands, and limitations are documented in the [English README](../../README.md).
 
-Executed on 2026-10-09 from `Portifólio`:
+Previously recorded execution on 2026-10-09 from `Portifólio` (not rerun in this documentation audit):
 
 ```bash
 python3 -B -m unittest discover -s env-auditor/tests -v
@@ -15,3 +15,7 @@ Real-workspace previews were also executed from `env-auditor` using `python3 -B 
 
 SHA-256 digests, permission bits, and modification timestamps of discovered environment files were identical before and after previews. Backup-root existence was unchanged. No normal synchronization was run on the real workspace, no sibling application suites or services were run, and no dependencies were installed.
 
+
+## Static documentation audit — 2026-10-09
+
+Inspected the script and all 17 checked-in test methods without importing or executing them. Updated the architecture and interview material to the authoritative-example implementation. No environment files or backups were read or changed, and no preview or synchronization was executed. Previous runtime results above remain historical evidence. Static Markdown link and documentation-only change checks are recorded in the portfolio interview [review](../../../tecnical-interview/docs/en/verification.md).
