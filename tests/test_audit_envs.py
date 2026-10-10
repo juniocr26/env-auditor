@@ -256,6 +256,97 @@ class AuditorTests(unittest.TestCase):
             with self.assertRaises(audit.InputError):
                 audit.backup(root, root / '.env', b'', b'')
 
+    def test_complete_tables_order_alignment_and_project_summary(self):
+        self.put('demo/config/.env', 'Z_SHARED=secret_fixture_837\nB_OLD=x\nA_OLD=x\n')
+        self.put('demo/config/.env.example', 'Z_SHARED=default\nB_NEW=x\nA_NEW=x\n')
+        self.put('demo/.env.prod.example', 'PROD=x\n')
+        self.put('clean/.env', 'KEEP=\n')
+        self.put('clean/.env.example', 'KEEP=default\n')
+        code, output = self.run_audit(True)
+        self.assertEqual(code, 0)
+        complete, summary = output.split('Resumo final por projeto (comparação inicial)')
+        rows = [line for line in complete.splitlines() if line.startswith('│') and any(k in line for k in ('A_NEW', 'B_NEW', 'A_OLD', 'B_OLD', 'Z_SHARED'))]
+        self.assertEqual([line.split('│')[1].strip() for line in rows], ['A_NEW', 'B_NEW', 'A_OLD', 'B_OLD', 'Z_SHARED'])
+        self.assertEqual(len({len(line) for line in rows}), 1)
+        self.assertEqual(len({tuple(i for i, char in enumerate(line) if char == '│') for line in rows}), 1)
+        for glyph in '┌┬┐├┼┤└┴┘│─':
+            self.assertIn(glyph, complete)
+        self.assertNotIn('Z_SHARED', summary)
+        self.assertNotIn('KEEP', summary)
+        self.assertIn('Projeto: demo', summary)
+        self.assertNotIn('Projeto: demo/config', summary)
+        self.assertIn('Alvo: demo/config/.env', summary)
+        self.assertIn('Referência: demo/.env.prod.example', summary)
+        self.assertIn('Somente no .env.prod.example', complete)
+        self.assertIn('Adicionar ao .env.prod', complete)
+        self.assertIn('Nenhuma pendência de sincronização.', summary)
+        self.assertIn('Proposta: Remover do .env', summary)
+        self.assertIn('Alvo ausente', complete)
+        self.assertIn('shared=2', summary)
+        self.assertIn('actual_updated=0', summary)
+        self.assertNotIn('secret_fixture_837', output)
+
+    def test_summary_completed_failed_and_unapplied_initial_counts(self):
+        target = self.put('demo/.env', 'OLD=secret_fixture_837\nKEEP=\n')
+        self.put('demo/.env.example', 'NEW=default\nKEEP=default\n')
+        before = self.snapshot()
+        with patch.object(audit.os, 'replace', side_effect=PermissionError('secret_fixture_837')):
+            code, output = self.run_audit()
+        summary = output.split('Resumo final por projeto (comparação inicial)')[1]
+        self.assertEqual(code, 1)
+        self.assertIn('Não aplicada: Adicionar ao .env', summary)
+        self.assertIn('Falhou: sincronizar par', summary)
+        self.assertNotIn('Concluída:', summary)
+        self.assertIn('added=1, removed=1, shared=1', summary)
+        self.assertIn('actual_updated=0', summary)
+        self.assertEqual(target.read_bytes(), before['demo/.env'][0])
+        code, output = self.run_audit()
+        self.assertEqual(code, 0)
+        summary = output.split('Resumo final por projeto (comparação inicial)')[1]
+        self.assertIn('Concluída: Remover do .env', summary)
+        self.assertIn('actual_updated=1', summary)
+        self.assertIn('Modo de execução: sincronização com backup', summary)
+        self.assertEqual(target.read_text(), 'KEEP=\nNEW=default\n')
+        self.assertNotIn('secret_fixture_837', output)
+
+    def test_missing_empty_target_reference_and_parse_findings(self):
+        self.put('empty/.env.example', '')
+        self.put('orphan/.env', 'KEEP=secret_fixture_837\n')
+        self.put('bad/.env.example', 'invalid secret_fixture_837')
+        code, output = self.run_audit(True)
+        self.assertEqual(code, 1)
+        summary = output.split('Resumo final por projeto (comparação inicial)')[1]
+        self.assertIn('Proposta: Criar .env', summary)
+        self.assertIn('Referência ausente', summary)
+        self.assertIn('Falhou: validar entradas', summary)
+        self.assertNotIn('secret_fixture_837', output)
+        self.assertFalse((self.root / 'empty/.env').exists())
+        self.assertFalse((self.root / '.env-audit-backups').exists())
+
+    def test_unicode_filename_table_display_alignment(self):
+        self.put('demo/.env.生产', 'OLD=x\nKEEP=\n')
+        self.put('demo/.env.生产.example', 'NEW=x\nKEEP=x\n')
+        code, output = self.run_audit(True)
+        self.assertEqual(code, 0)
+        complete = output.split('Resumo final por projeto (comparação inicial)')[0]
+        lines = [line for line in complete.splitlines() if line.startswith(('│', '┌', '├', '└'))]
+        self.assertEqual(len({audit.display_width(line) for line in lines}), 1)
+
+    def test_empty_creation_failure_and_discovery_summary(self):
+        self.put('demo/.env.example', '')
+        with patch.object(audit.os, 'replace', side_effect=PermissionError()):
+            code, output = self.run_audit()
+        self.assertEqual(code, 1)
+        summary = output.split('Resumo final por projeto (comparação inicial)')[1]
+        self.assertIn('Não aplicada: Criar .env', summary)
+        self.assertIn('Falhou: sincronizar par', summary)
+        self.assertNotIn('Falhou: validar entradas', summary)
+        self.assertFalse((self.root / 'demo/.env').exists())
+        with patch.object(audit.os, 'scandir', side_effect=PermissionError()):
+            code, output = self.run_audit(True)
+        self.assertEqual(code, 1)
+        self.assertIn('Falhou: descobrir arquivos', output.split('Resumo final por projeto (comparação inicial)')[1])
+
     def test_retired_options_rejected_and_settings_ignored(self):
         for option in ('--strict', '--strict-unused', '--show-usage', '--no-backup'):
             with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as result:

@@ -46,7 +46,7 @@ Antes de alterar um alvo existente, são salvos os bytes originais exatos e apen
 
 Diretórios de backup usam permissões `0700`, arquivos usam `0600`, e a raiz dos backups contém um `.gitignore` local com `*`. Os nomes dos diretórios evitam colisões. Falha no backup impede a alteração do alvo; backups parciais podem permanecer após uma falha. Alvos novos e inalterados não geram backups. A escrita usa arquivo temporário no mesmo diretório e substituição atômica; a remoção dos temporários é tentada após falhas e pode também falhar. Os bits de permissão existentes são preservados, e alvos novos recebem `0600`.
 
-Os relatórios mostram raiz absoluta, arquivos agrupados por diretório, pares selecionados, nomes e contagens de variáveis adicionadas/removidas, resultados de criação/atualização/inalterado/ignorado, caminhos de backup, erros e totais. Valores de ambiente e conteúdo de exceções do sistema de arquivos nunca são impressos.
+Os relatórios mantêm descoberta, skips, erros e caminhos de backup. Tabelas Unicode completas mostram todas as chaves sem valores; o resumo por projeto omite compartilhadas e distingue ações propostas, concluídas, falhas e não aplicadas. Contagens iniciais são separadas das escritas reais. Veja o [guia do relatório](docs/pt-BR/guide.md#relatório-completo-e-resumo-de-ações) e [exemplos sintéticos](docs/pt-BR/terminal-report.md).
 
 ## Códigos de saída e recursos aposentados
 
@@ -71,4 +71,4 @@ A substituição atômica ocorre por alvo; não há transação entre todos os a
 [Arquitetura](docs/pt-BR/architecture.md) · [Guia](docs/pt-BR/guide.md) · [Instalação](docs/pt-BR/setup.md) · [Verificação](docs/pt-BR/verification.md) · [Licença](LICENSE)
 
 
-A revisão estática detalhou limites de corridas no filesystem, durabilidade após crash e storage oculto não excluído na [arquitetura](docs/pt-BR/architecture.md). Os comandos de teste acima são instruções documentadas; esta auditoria não os executou.
+A revisão estática detalhou limites de corridas no filesystem, durabilidade após crash e storage oculto não excluído na [arquitetura](docs/pt-BR/architecture.md). Veja a verificação para resultados datados dos testes.

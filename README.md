@@ -46,7 +46,7 @@ Before modifying an existing target, save exact original bytes and only the remo
 
 Backup directories use permissions `0700`, files use `0600`, and the backup root has a local `.gitignore` containing `*`. Backup directory names are collision-safe. Backup failure prevents modification of that target; partial backups may remain after a failure. Unchanged and new targets do not create backups. Target writes use a temporary file in the same directory and atomic replacement; temporary-file cleanup is attempted after failures; cleanup can itself fail. Existing permission bits are preserved, and new targets use `0600`.
 
-Reports contain the absolute root, discovered files grouped by directory, selected pairs, added/removed names and counts, created/updated/unchanged/skipped outcomes, backup paths, errors, and final totals. Environment values and exception content from filesystem errors are never printed.
+Reports retain discovery, skips, errors and backup paths. Complete Unicode tables show every key without values; a project summary excludes shared keys and distinguishes proposed, completed, failed and unapplied actions. Initial comparison counts are separate from actual writes. See the [report guide](docs/en/guide.md#complete-report-and-action-summary) and [synthetic terminal examples](docs/en/terminal-report.md).
 
 ## Exit status and retired features
 

@@ -12,6 +12,7 @@ import re
 import stat
 import sys
 import tempfile
+import unicodedata
 
 EXCLUDED = set('''.git .hg .svn node_modules vendor __pycache__ .venv venv
 .env-audit-backups backups backup dist build out target .next .nuxt .cache
@@ -199,21 +200,72 @@ def resolve_root(override=None):
     return root
 
 
+def display_width(text):
+    return sum(0 if unicodedata.combining(char) else 2 if unicodedata.east_asian_width(char) in ('W', 'F') else 1
+               for char in text)
+
+
+def table(rows):
+    """Render identifier-only rows; input values never enter the presentation."""
+    headers = ('Variável', 'Situação', 'Ação prevista')
+    widths = [max(display_width(row[i]) for row in [headers, *rows]) for i in range(3)]
+
+    def border(left, join, right):
+        return left + join.join('─' * (width + 2) for width in widths) + right
+
+    def line(row):
+        return '│' + '│'.join(' ' + cell + ' ' * (width - display_width(cell) + 1)
+                             for cell, width in zip(row, widths)) + '│'
+
+    print(border('┌', '┬', '┐'))
+    print(line(headers))
+    for row in rows:
+        print(border('├', '┼', '┤'))
+        print(line(row))
+    print(border('└', '┴', '┘'))
+
+
+def comparison_rows(target, example, added, removed, shared):
+    return ([(key, f'Somente no {example.name}', f'Adicionar ao {target.name}') for key in sorted(added)]
+            + [(key, f'Somente no {target.name}', f'Remover do {target.name}') for key in sorted(removed)]
+            + [(key, 'Presente nos dois', f'Preservar valor do {target.name}') for key in sorted(shared)])
+
+
+def project_name(root, directory):
+    relative = directory.relative_to(root)
+    return relative.parts[0] if relative.parts else '.'
+
+
+def pair_heading(root, target, example):
+    print(f'Alvo: {target.relative_to(root)}')
+    print(f'Referência: {example.relative_to(root)}' if example else 'Referência: ausente')
+
+
 def run(root: Path, preview=False) -> int:
     print(f'Scan root: {root}')
     totals = Counter(created=0, updated=0, unchanged=0, skipped=0, errors=0, added=0, removed=0)
+    summaries = {}
+    findings = {}
+    mode = 'auditoria' if preview else 'sincronização com backup'
+    print(f'Modo: {mode}')
+    totals.update(shared=0, actual_created=0, actual_updated=0)
     groups, errors, links = discover(root)
     for path in links:
         print(f'Skipped symbolic link: {path.relative_to(root)}')
         totals['skipped'] += 1
     for path in errors:
         print(f'ERROR: discovery failed: {path.relative_to(root)}')
+        project = project_name(root, path.parent if path != root else root)
+        findings.setdefault(project, []).append(('', f'Erro de descoberta: {path.relative_to(root)}', 'Falhou: descobrir arquivos'))
         totals['errors'] += 1
     if not groups and not errors:
         print('No environment files found.')
     if (root / '.env-audit.json').exists():
         print('Retired .env-audit.json settings ignored; remove this file.')
     for directory, paths in sorted(groups.items()):
+        project = project_name(root, directory)
+        records = summaries.setdefault(project, [])
+        print(f'Projeto: {project}')
         print(f'[{directory.relative_to(root)}] Discovered: ' + ', '.join(p.name for p in paths))
         by_name = {p.name: p for p in paths}
         targets = {p.name for p in paths if not p.name.endswith('.example')}
@@ -223,13 +275,19 @@ def run(root: Path, preview=False) -> int:
             example = by_name.get(name + '.example') or by_name.get('.env.example')
             if target.is_symlink() or (target.exists() and not target.is_file()):
                 print(f'Skipped {target.relative_to(root)}: symbolic or nonregular target')
+                records.append((target, example, [('', 'Alvo simbólico ou não regular', 'Não aplicada: verificar alvo')]))
                 totals['skipped'] += 1
                 continue
             if example is None:
                 print(f'Skipped {target.relative_to(root)}: no matching example; unchanged')
                 totals['skipped'] += 1
+                records.append((target, None, [('', 'Referência ausente', 'Não aplicada: localizar referência')]))
                 continue
             print(f'Pair: {target.relative_to(root)} <- {example.relative_to(root)}')
+            pair_heading(root, target, example)
+            rows = []
+            planned = False
+            exists = None
             try:
                 reference = read_document(example)
                 exists = target.exists()
@@ -238,25 +296,59 @@ def run(root: Path, preview=False) -> int:
                 # A new target copies the entire validated example, including comments.
                 if not exists:
                     data = reference.raw
+                planned = True
                 outcome = 'created' if not exists else 'updated' if data != document.raw else 'unchanged'
-                print(f'  Added ({len(added)}): ' + ', '.join(added))
-                print(f'  Removed ({len(removed)}): ' + ', '.join(removed))
+                shared = set(document.keys) & set(reference.keys)
+                rows = comparison_rows(target, example, added, removed, shared)
+                table(rows)
+                if not exists:
+                    print('Alvo ausente: criação proposta.' if preview else 'Alvo ausente: criação necessária.')
+                totals['added'] += len(added)
+                totals['removed'] += len(removed)
+                totals['shared'] += len(shared)
                 if not preview and outcome != 'unchanged':
-                    mode = stat.S_IMODE(target.stat().st_mode) if exists else 0o600
+                    permissions = stat.S_IMODE(target.stat().st_mode) if exists else 0o600
                     if exists:
                         for saved in backup(root, target, document.raw, removed_bytes):
                             print(f'  Backup: {saved}')
-                    atomic_write(target, data, mode)
+                    atomic_write(target, data, permissions)
                 print(f'  {"Proposed " if preview else ""}{outcome}')
                 totals[outcome] += 1
-                totals['added'] += len(added)
-                totals['removed'] += len(removed)
+                if not preview and outcome != 'unchanged':
+                    totals['actual_' + outcome] += 1
+                if outcome == 'unchanged':
+                    print('Par inalterado.')
+                prefix = 'Proposta: ' if preview else 'Concluída: '
+                actions = [(key, status, prefix + action) for key, status, action in rows if status != 'Presente nos dois']
+                if not exists:
+                    actions.append(('', 'Alvo ausente na comparação inicial', prefix + f'Criar {target.name}'))
+                records.append((target, example, actions))
             except (OSError, InputError) as exc:
                 # OSError messages can contain arbitrary data supplied by mocks or OS.
                 reason = str(exc) if isinstance(exc, InputError) else type(exc).__name__
                 print(f'ERROR: {target.relative_to(root)}: {reason}; target unchanged')
                 totals['errors'] += 1
                 totals['skipped'] += 1
+                actions = [(key, status, 'Não aplicada: ' + action) for key, status, action in rows if status != 'Presente nos dois']
+                if planned and not exists:
+                    actions.append(('', 'Alvo ausente na comparação inicial', f'Não aplicada: Criar {target.name}'))
+                actions.append(('', 'Falha: ' + reason, 'Falhou: sincronizar par' if planned else 'Falhou: validar entradas'))
+                records.append((target, example, actions))
+    print('Resumo final por projeto (comparação inicial)')
+    for project in sorted(summaries.keys() | findings.keys()):
+        records = summaries.get(project, [])
+        print(f'Projeto: {project}')
+        if findings.get(project):
+            table(findings[project])
+        if not findings.get(project) and not any(actions for _, _, actions in records):
+            print('Nenhuma pendência de sincronização.')
+        for target, example, actions in records:
+            if actions:
+                pair_heading(root, target, example)
+                table(actions)
+    if preview:
+        print('Ações propostas; nenhum arquivo foi alterado. Nenhum backup foi criado.')
+    print(f'Modo de execução: {mode}')
     print(('Proposed totals: ' if preview else 'Totals: ') + ', '.join(f'{k}={v}' for k, v in totals.items()))
     return 1 if totals['errors'] else 0
 

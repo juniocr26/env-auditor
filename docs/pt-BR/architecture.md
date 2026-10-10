@@ -40,3 +40,5 @@ Alvos existentes alterados recebem backup antes da escrita. São originais/bloco
 Atomicidade é individual, sem rollback de grupo nem garantia de metadados de diretório após perda de energia. Não há fsync do diretório pai, lock ou rechecagem do conteúdo. Checagens de links evitam travessia estática, sem eliminar corridas entre checagem e uso. A limpeza é tentada em `finally`; sua falha pode deixar temporário. Recursão profunda e falhas de saída podem escapar ao contrato normal 0/1/2.
 
 Biblioteca de parsing, schema tipado, raízes de inclusão explícitas, lock, retenção ou transação coordenada são alternativas para requisitos mais fortes, não alterações entregues aqui. Veja [evidências e limites](verification.md).
+
+A apresentação usa `comparison_rows` e `table`, separadas de `plan`. Registros do resumo preservam comparação inicial e resultado de cada par; rótulos de projeto não alteram descoberta ou escolha da referência.

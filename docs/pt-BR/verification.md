@@ -19,3 +19,7 @@ Os hashes SHA-256, bits de permissão e timestamps de modificação dos arquivos
 ## Auditoria documental estática — 2026-10-09
 
 Script e 17 métodos de teste inspecionados sem importar ou executar. Arquitetura e material de entrevista alinhados à implementação baseada em exemplos autoritativos. Nenhum arquivo de ambiente ou backup foi lido/alterado; nenhuma prévia ou sincronização foi executada. Resultados anteriores continuam como evidência histórica. Checagens estáticas de links e alterações somente documentais estão na [revisão](../../../tecnical-interview/docs/pt-BR/verification.md).
+
+## Validação da apresentação — 2026-10-10
+
+Executado `python3 -B -m unittest discover -s env-auditor/tests -v`: todos os 22 testes passaram. Cinco casos focados acrescentam ordenação, alinhamento/separadores, agrupamento de projetos/pares, omissão de compartilhadas no resumo, contagens iniciais após falha, ações concluídas/falhas/não aplicadas, alvos ausentes/vazios, referências ausentes e diagnósticos seguros de parsing. Testes existentes cobrem valores vazios, ambos os aliases de prévia com snapshots de arquivos/diretórios, backups, permissões, entradas malformadas e falhas injetadas. [Exemplos de terminal](terminal-report.md) gerados em fixtures sintéticas temporárias, nos modos auditoria e sincronização com backup. Sem sincronização real, deploy, commits ou pushes. Modo sem backup e análise de uso continuam indisponíveis.
