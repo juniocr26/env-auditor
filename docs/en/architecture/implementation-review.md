@@ -1,0 +1,13 @@
+# Execution, representation and decisions
+
+[English](implementation-review.md) | [Português brasileiro](../../pt-BR/architecture/implementation-review.md)
+
+Static source review: 2026-10-10. Implemented facts, general theory and hypothetical changes are distinguished below. Runtime commands were not executed.
+
+The implemented product is a local, standard-library Python CLI that aligns literal environment-file key membership with authoritative examples. It is neither a service nor a source-code usage analyzer. `main` parses arguments, `resolve_root` fixes scope, `discover` groups files by directory, `parse` builds a `Document`, `plan` computes bytes, and `run` presents or writes each pair. The default root is two parents above the resolved script; explicit relative roots use the caller's directory. No cross-project API is involved: scanning sibling directories is a filesystem capability, not an application integration.
+
+`Document.raw` retains original bytes and `blocks` is an ordered list of `(key or None, literal text)`. A block can span quoted lines; comments have no key. Sets support membership comparison and `Counter` rejects duplicate example keys. Existing duplicate target keys survive if allowed. Planning preserves allowed blocks, collects removed blocks and appends missing reference assignments. A new target copies the whole validated reference, including comments. An empty reference removes all assignments from an existing target while leaving comments. This is deliberate structural behavior, not proof the application can run afterward.
+
+Discovery uses sorted `os.scandir` recursion and exact exclusions, independent of Git. Specific variant examples win over same-directory base examples. Unreferenced targets are skipped, and base examples do not invent arbitrary variants. Filesystem discovery finds ignored configuration but can traverse unexcluded storage; scanning and sorting cost grows with entries, while parsing and planning grow with input bytes and blocks. `key in added` currently uses a list, so many missing keys can make appending comparisons quadratic. This is a static complexity observation, not a measured bottleneck. A set alongside the ordered list is a possible optimization.
+
+Planning separately from mutation makes preview faithful to the transformation and keeps it testable. A formatting-aware dotenv library could broaden grammar; typed schemas could validate values; explicit include roots could limit traversal. These are hypothetical alternatives. None would justify silently sourcing arbitrary input. The current parser does not execute or interpolate values, but accepts only its documented literal grammar.

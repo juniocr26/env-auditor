@@ -1,10 +1,10 @@
-# Relatório do terminal
+# Terminal report
 
-[Guia](guide.md) · [Verificação](verification.md)
+[Guide](../guides/project-guide.md) · [Verification](../testing/verification.md)
 
-Fixture sintética: `demo/.env` contém KEEP (vazia) e OLD; `demo/.env.example` contém KEEP e NEW. Valores omitidos. Raiz e sessão de backup normalizadas. Saídas geradas em fixtures temporárias isoladas.
+Synthetic fixture: `demo/.env` contains KEEP (empty) and OLD; `demo/.env.example` contains KEEP and NEW. Values are omitted. Root and backup session paths are normalized. These outputs were generated using isolated temporary fixtures.
 
-## Auditoria (`--audit-only` ou `--dry-run`)
+## Audit-only (`--audit-only` or `--dry-run`)
 
 ```text
 Scan root: <scan-root>
@@ -40,7 +40,7 @@ Modo de execução: auditoria
 Proposed totals: created=0, updated=1, unchanged=0, skipped=0, errors=0, added=1, removed=1, shared=1, actual_created=0, actual_updated=0
 ```
 
-## Sincronização com backup
+## Synchronization with backup
 
 ```text
 Scan root: <scan-root>

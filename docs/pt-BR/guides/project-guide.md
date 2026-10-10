@@ -1,8 +1,8 @@
 # Guia do projeto
 
-[English](../en/guide.md) | [Português brasileiro](guide.md)
+[English](../../en/guides/project-guide.md) | [Português brasileiro](project-guide.md)
 
-Consulte [README](../../README.pt-BR.md) para comandos/exclusões e [arquitetura](architecture.md) para fronteiras. Aqui o objetivo é raciocinar sobre o plano sem executar sincronização.
+Consulte [README](../../../README.pt-BR.md) para comandos/exclusões e [arquitetura](../architecture/overview.md) para fronteiras. Aqui o objetivo é raciocinar sobre o plano sem executar sincronização.
 
 ## Leia o par antes do resultado
 
@@ -14,7 +14,7 @@ Se o exemplo declara A/B e o alvo A/OLD, mantém valor literal de A, acrescenta 
 
 `--dry-run` e `--audit-only` dão os mesmos totais propostos sem escrita do auditor. Diferenças sozinhas saem 0. Erros dão 1; referências ausentes/links são skips; 2 é raiz/argumentos inválidos. Prévia não testa backups/permissões futuros.
 
-Execução normal faz backup de alvos existentes alterados antes do replace; par com falha não desfaz pares anteriores. Leia [limites](architecture.md#persistência-e-fronteiras-de-falha) antes de tratar replace como transação global. Veja [verificação](verification.md) para evidências datadas.
+Execução normal faz backup de alvos existentes alterados antes do replace; par com falha não desfaz pares anteriores. Leia [limites](../architecture/overview.md#persistência-e-fronteiras-de-falha) antes de tratar replace como transação global. Veja [verificação](../testing/verification.md) para evidências datadas.
 
 ## Relatório completo e resumo de ações
 
@@ -28,4 +28,4 @@ O resumo preserva a comparação inicial. Prévia usa `Proposta:` e confirma que
 
 Não há análise de uso, classificação de baixo uso ou ausência de referências no código. Ausência no exemplo é diferença de sincronização, nunca prova de desuso. A regra autoritativa existente continua removendo automaticamente atribuições só no alvo. Nenhuma exclusão baseada em busca de referências foi acrescentada. Sincronização sem backup não é suportada: `--no-backup` continua rejeitado (saída 2).
 
-Veja [saídas sintéticas geradas](terminal-report.md) de auditoria e escrita.
+Veja [saídas sintéticas geradas](../operations/terminal-report.md) de auditoria e escrita.

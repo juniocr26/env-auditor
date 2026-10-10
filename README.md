@@ -4,6 +4,13 @@
 
 Python 3.10+ CLI, standard library only. Normal execution synchronizes environment files using authoritative examples, audits their structure, and automatically backs up changed existing targets.
 
+## Documentation catalog and reading path
+
+- [Complete categorized catalog](docs/en/index.md)
+- [Review checklist and evidence gaps](docs/en/operations/completion-checklist.md)
+
+Read purpose/setup first, then architecture and contracts, security and failures, tests/evidence, and local deployment/recovery. This is an independent portfolio project; runtime procedures in the documentation were not executed in the 2026-10-10 review.
+
 From `Portifólio/env-auditor`:
 
 ```bash
@@ -46,7 +53,7 @@ Before modifying an existing target, save exact original bytes and only the remo
 
 Backup directories use permissions `0700`, files use `0600`, and the backup root has a local `.gitignore` containing `*`. Backup directory names are collision-safe. Backup failure prevents modification of that target; partial backups may remain after a failure. Unchanged and new targets do not create backups. Target writes use a temporary file in the same directory and atomic replacement; temporary-file cleanup is attempted after failures; cleanup can itself fail. Existing permission bits are preserved, and new targets use `0600`.
 
-Reports retain discovery, skips, errors and backup paths. Complete Unicode tables show every key without values; a project summary excludes shared keys and distinguishes proposed, completed, failed and unapplied actions. Initial comparison counts are separate from actual writes. See the [report guide](docs/en/guide.md#complete-report-and-action-summary) and [synthetic terminal examples](docs/en/terminal-report.md).
+Reports retain discovery, skips, errors and backup paths. Complete Unicode tables show every key without values; a project summary excludes shared keys and distinguishes proposed, completed, failed and unapplied actions. Initial comparison counts are separate from actual writes. See the [report guide](docs/en/guides/project-guide.md#complete-report-and-action-summary) and [synthetic terminal examples](docs/en/operations/terminal-report.md).
 
 ## Exit status and retired features
 
@@ -68,7 +75,7 @@ Tests use temporary fixtures for synchronization writes and inject permission fa
 
 Atomic replacement is per target; there is no transaction across all targets and no concurrent-writer lock. Do not edit files concurrently with synchronization. POSIX permission bits are used; ownership, ACLs, timestamps, and extended attributes are not preserved. The parser handles literal assignments and comments, not arbitrary shell scripts. References are authoritative; preview their changes before synchronization.
 
-[Architecture](docs/en/architecture.md) · [Guide](docs/en/guide.md) · [Setup](docs/en/setup.md) · [Verification](docs/en/verification.md) · [License](LICENSE)
+[Architecture](docs/en/architecture/overview.md) · [Guide](docs/en/guides/project-guide.md) · [Setup](docs/en/guides/setup.md) · [Verification](docs/en/testing/verification.md) · [License](LICENSE)
 
 
-Static review clarified filesystem race, crash-durability and unexcluded hidden-storage limits in [architecture](docs/en/architecture.md). Test commands above are documented instructions; this documentation audit did not execute them.
+Static review clarified filesystem race, crash-durability and unexcluded hidden-storage limits in [architecture](docs/en/architecture/overview.md). Test commands above are documented instructions; this documentation audit did not execute them.

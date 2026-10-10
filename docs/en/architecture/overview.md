@@ -1,8 +1,8 @@
 # Architecture
 
-[English](architecture.md) | [Português brasileiro](../pt-BR/architecture.md)
+[English](overview.md) | [Português brasileiro](../../pt-BR/architecture/overview.md)
 
-The [README](../../README.md) owns the CLI contract and complete exclusions. The implementation is one [standard-library script](../../scripts/audit-envs.py), organized around discovery, literal parsing, planning and per-target persistence.
+The [README](../../../README.md) owns the CLI contract and complete exclusions. The implementation is one [standard-library script](../../../scripts/audit-envs.py), organized around discovery, literal parsing, planning and per-target persistence.
 
 ## Responsibilities and flow
 
@@ -39,6 +39,6 @@ Changed existing targets are backed up before writing. Backups contain plaintext
 
 Atomicity applies to replacement of one file, not rollback of a group or durable directory metadata after power loss. There is no parent-directory fsync, concurrency lock or target-content recheck. Symlink checks prevent ordinary static traversal through links but do not eliminate time-of-check/time-of-use races. Cleanup is attempted in `finally`; a cleanup failure can leave a temporary file. Deep recursive traversal and output failures can raise exceptions outside the normal 0/1/2 exit contract.
 
-A parser library, typed schema, explicit include-root policy, lock, retention policy or coordinated transaction could address stronger requirements. These are alternatives for study, not changes delivered in this review. See [test evidence and review limits](verification.md).
+A parser library, typed schema, explicit include-root policy, lock, retention policy or coordinated transaction could address stronger requirements. These are alternatives for study, not changes delivered in this review. See [test evidence and review limits](../testing/verification.md).
 
 Presentation uses `comparison_rows` and `table`, separate from `plan`. Summary records retain the initial comparison and the outcome of each pair; project labels do not affect discovery or reference selection.

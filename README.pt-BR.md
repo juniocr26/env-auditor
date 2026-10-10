@@ -4,6 +4,13 @@
 
 CLI para Python 3.10+, apenas com a biblioteca padrão. A execução normal sincroniza arquivos de ambiente com exemplos autoritativos, valida sua estrutura e cria backups automaticamente antes de alterar alvos existentes.
 
+## Catálogo de documentação e percurso de leitura
+
+- [Catálogo completo por categoria](docs/pt-BR/index.md)
+- [Checklist da revisão e lacunas](docs/pt-BR/operations/completion-checklist.md)
+
+Leia propósito/setup, arquitetura e contratos, segurança/falhas, testes/evidência e implantação/recuperação local. Este projeto é independente no portfólio; procedimentos runtime documentados não foram executados na revisão de 2026-10-10.
+
 Em `Portifólio/env-auditor`:
 
 ```bash
@@ -46,7 +53,7 @@ Antes de alterar um alvo existente, são salvos os bytes originais exatos e apen
 
 Diretórios de backup usam permissões `0700`, arquivos usam `0600`, e a raiz dos backups contém um `.gitignore` local com `*`. Os nomes dos diretórios evitam colisões. Falha no backup impede a alteração do alvo; backups parciais podem permanecer após uma falha. Alvos novos e inalterados não geram backups. A escrita usa arquivo temporário no mesmo diretório e substituição atômica; a remoção dos temporários é tentada após falhas e pode também falhar. Os bits de permissão existentes são preservados, e alvos novos recebem `0600`.
 
-Os relatórios mantêm descoberta, skips, erros e caminhos de backup. Tabelas Unicode completas mostram todas as chaves sem valores; o resumo por projeto omite compartilhadas e distingue ações propostas, concluídas, falhas e não aplicadas. Contagens iniciais são separadas das escritas reais. Veja o [guia do relatório](docs/pt-BR/guide.md#relatório-completo-e-resumo-de-ações) e [exemplos sintéticos](docs/pt-BR/terminal-report.md).
+Os relatórios mantêm descoberta, skips, erros e caminhos de backup. Tabelas Unicode completas mostram todas as chaves sem valores; o resumo por projeto omite compartilhadas e distingue ações propostas, concluídas, falhas e não aplicadas. Contagens iniciais são separadas das escritas reais. Veja o [guia do relatório](docs/pt-BR/guides/project-guide.md#relatório-completo-e-resumo-de-ações) e [exemplos sintéticos](docs/pt-BR/operations/terminal-report.md).
 
 ## Códigos de saída e recursos aposentados
 
@@ -68,7 +75,7 @@ Os testes escrevem apenas em fixtures temporárias e simulam falhas de permissã
 
 A substituição atômica ocorre por alvo; não há transação entre todos os alvos nem bloqueio de escritores concorrentes. Evite edições simultâneas durante a sincronização. São usados bits POSIX de permissão; proprietário, ACLs, timestamps e atributos estendidos não são preservados. O parser aceita atribuições literais e comentários, não scripts shell arbitrários. As referências são autoritativas; revise a prévia antes de sincronizar.
 
-[Arquitetura](docs/pt-BR/architecture.md) · [Guia](docs/pt-BR/guide.md) · [Instalação](docs/pt-BR/setup.md) · [Verificação](docs/pt-BR/verification.md) · [Licença](LICENSE)
+[Arquitetura](docs/pt-BR/architecture/overview.md) · [Guia](docs/pt-BR/guides/project-guide.md) · [Instalação](docs/pt-BR/guides/setup.md) · [Verificação](docs/pt-BR/testing/verification.md) · [Licença](LICENSE)
 
 
-A revisão estática detalhou limites de corridas no filesystem, durabilidade após crash e storage oculto não excluído na [arquitetura](docs/pt-BR/architecture.md). Veja a verificação para resultados datados dos testes.
+A revisão estática detalhou limites de corridas no filesystem, durabilidade após crash e storage oculto não excluído na [arquitetura](docs/pt-BR/architecture/overview.md). Veja a verificação para resultados datados dos testes.
